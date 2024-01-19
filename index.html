@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RPC Client</title>
+        <script type="importmap">
+            {
+                "imports": {
+                    "is-pojo": "https://esm.sh/is-pojo"
+                }
+            }
+        </script>
+        <script type="module">
+            import { ChromeExtensionTransport } from "./transports/chrome.runtime.connect.mjs";
+            import { Client } from "./rpc.mjs";
+
+            const extensionId = "jpakbncjoccbkmkndcnoajehocnnjjcn"; // replace with your extension id
+            const transport = new ChromeExtensionTransport(extensionId);
+            // window.fetchProxy = Client.create("fetch", transport);
+            window.browser = Client.create("browser", transport);
+        </script>
+    </head>
+    <body>
+        <h1>RPC Client</h1>
+    </body>
+</html>

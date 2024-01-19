@@ -1,0 +1,26 @@
+{
+    "name": "fetch lpc",
+    "version": "0.0.1",
+    "description": "give cors fetch to any page",
+    "permissions": [
+        "debugger",
+        "tabs",
+        "storage",
+        "activeTab",
+        "webRequest",
+        "webRequestBlocking",
+        "http://localhost:3000/*",
+        "https://rynomad.github.io/*"
+    ],
+    "host_permissions": ["<all_urls>"],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "externally_connectable": {
+        "ids": [],
+        "matches": ["http://localhost:3000/*", "https://rynomad.github.io/*"],
+        "accepts_tls_channel_id": false
+    },
+    "manifest_version": 3
+}
