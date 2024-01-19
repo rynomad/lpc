@@ -39,6 +39,20 @@ const browser = {
     },
 };
 
+const origins = ["https://rynomad.github.io", "http://localhost:3000"];
+
+chrome.webNavigation.onCommitted.addListener(function (details) {
+    const obj = new URL(details.url);
+    if (origins.includes(obj.origin)) {
+        chrome.scripting.executeScript({
+            target: { tabId: details.tabId },
+            function: (value) => {
+                localStorage.setItem("PROXY_EXTENSION_ID", value);
+            },
+            args: [chrome.runtime.id],
+        });
+    }
+});
 self.fetchServer = new Server(
     fetch,
     "fetch",

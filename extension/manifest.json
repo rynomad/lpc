@@ -9,6 +9,8 @@
         "activeTab",
         "webRequest",
         "webRequestBlocking",
+        "webNavigation",
+        "scripting",
         "http://localhost:3000/*",
         "https://rynomad.github.io/*"
     ],

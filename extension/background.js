@@ -30123,9 +30123,9 @@ ${sourceUrlComment}
         #connection;
         #defaultViewport;
         #isDefault = false;
-        constructor(browser2, options) {
+        constructor(browser, options) {
           super();
-          this.#browser = browser2;
+          this.#browser = browser;
           this.#connection = this.#browser.connection;
           this.#defaultViewport = options.defaultViewport;
           this.#isDefault = options.isDefault;
@@ -37624,13 +37624,13 @@ ${sourceUrlComment}
           await opts.connection.send("session.subscribe", {
             events: browserName.toLocaleLowerCase().includes("firefox") ? _BidiBrowser.subscribeModules : [..._BidiBrowser.subscribeModules, ..._BidiBrowser.subscribeCdpEvents]
           });
-          const browser2 = new _BidiBrowser({
+          const browser = new _BidiBrowser({
             ...opts,
             browserName,
             browserVersion
           });
-          await browser2.#getTree();
-          return browser2;
+          await browser.#getTree();
+          return browser;
         }
         #browserName = "";
         #browserVersion = "";
@@ -44764,9 +44764,9 @@ ${sourceUrlComment}
   var CdpBrowser = class _CdpBrowser extends Browser {
     protocol = "cdp";
     static async _create(product, connection, contextIds, ignoreHTTPSErrors, defaultViewport, process3, closeCallback, targetFilterCallback, isPageTargetCallback, waitForInitiallyDiscoveredTargets = true) {
-      const browser2 = new _CdpBrowser(product, connection, contextIds, ignoreHTTPSErrors, defaultViewport, process3, closeCallback, targetFilterCallback, isPageTargetCallback, waitForInitiallyDiscoveredTargets);
-      await browser2._attach();
-      return browser2;
+      const browser = new _CdpBrowser(product, connection, contextIds, ignoreHTTPSErrors, defaultViewport, process3, closeCallback, targetFilterCallback, isPageTargetCallback, waitForInitiallyDiscoveredTargets);
+      await browser._attach();
+      return browser;
     }
     #ignoreHTTPSErrors;
     #defaultViewport;
@@ -44970,10 +44970,10 @@ ${sourceUrlComment}
     #connection;
     #browser;
     #id;
-    constructor(connection, browser2, contextId) {
+    constructor(connection, browser, contextId) {
       super();
       this.#connection = connection;
-      this.#browser = browser2;
+      this.#browser = browser;
       this.#id = contextId;
     }
     get id() {
@@ -45040,10 +45040,10 @@ ${sourceUrlComment}
     const version2 = await connection.send("Browser.getVersion");
     const product = version2.product.toLowerCase().includes("firefox") ? "firefox" : "chrome";
     const { browserContextIds } = await connection.send("Target.getBrowserContexts");
-    const browser2 = await CdpBrowser._create(product || "chrome", connection, browserContextIds, ignoreHTTPSErrors, defaultViewport, void 0, () => {
+    const browser = await CdpBrowser._create(product || "chrome", connection, browserContextIds, ignoreHTTPSErrors, defaultViewport, void 0, () => {
       return connection.send("Browser.close").catch(debugError);
     }, targetFilter, isPageTarget);
-    return browser2;
+    return browser;
   }
 
   // node_modules/puppeteer-core/lib/esm/puppeteer/common/BrowserConnector.js
@@ -45200,34 +45200,22 @@ ${sourceUrlComment}
   // extension/background.mjs
   var import_puppeteer_extension_transport = __toESM(require_lib2(), 1);
   var puppeteerCore = new Puppeteer({ isPuppeteerCore: true });
-  var browser = {
-    newPage: async (url) => {
-      return new Promise((resolve3, reject) => {
-        chrome.tabs.create(
-          {
-            active: false,
-            url
-          },
-          async (tab) => {
-            if (tab.id) {
-              const extensionTransport = await import_puppeteer_extension_transport.ExtensionDebuggerTransport.create(tab.id);
-              const browserInstance = await puppeteerCore.connect({
-                transport: extensionTransport,
-                defaultViewport: null
-              });
-              const [page] = await browserInstance.pages();
-              resolve3(page);
-            } else {
-              reject(new Error("Failed to create a new tab"));
-            }
-          }
-        );
+  var origins = ["https://rynomad.github.io", "http://localhost:3000"];
+  chrome.webNavigation.onCommitted.addListener(function(details) {
+    const obj = new URL(details.url);
+    if (origins.includes(obj.origin)) {
+      chrome.scripting.executeScript({
+        target: { tabId: details.tabId },
+        function: (value) => {
+          localStorage.setItem("PROXY_EXTENSION_ID", value);
+        },
+        args: [chrome.runtime.id]
       });
     }
-  };
-  self.browserServer = new Server(
-    browser,
-    "browser",
+  });
+  self.fetchServer = new Server(
+    fetch,
+    "fetch",
     new ChromeExtensionBackgroundTransport()
   );
 })();

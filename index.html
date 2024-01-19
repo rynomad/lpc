@@ -13,10 +13,10 @@
             import { ChromeExtensionTransport } from "./transports/chrome.runtime.connect.mjs";
             import { Client } from "./rpc.mjs";
 
-            const extensionId = "jpakbncjoccbkmkndcnoajehocnnjjcn"; // replace with your extension id
+            const extensionId = localStorage.getItem("PROXY_EXTENSION_ID"); // replace with your extension id
             const transport = new ChromeExtensionTransport(extensionId);
-            // window.fetchProxy = Client.create("fetch", transport);
-            window.browser = Client.create("browser", transport);
+            window.fetchProxy = Client.create("fetch", transport);
+            // window.browser = Client.create("browser", transport);
         </script>
     </head>
     <body>
